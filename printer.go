@@ -64,19 +64,19 @@ func NewStructPrinter(depth int, colName string, inStruct bool, plist []Printer)
 
 // Print prints one line of hive ddl corresponding to the primitive type.
 func (p PrimitivePrinter) Print() string {
-	return fmt.Sprintf("%s%s%s%s,\n", printIndent(p.depth), p.colName, p.sep, p.typeName)
+	return fmt.Sprintf("%s%s%s%s,", printIndent(p.depth), p.colName, p.sep, p.typeName)
 }
 
 // Print prints one line of hive ddl corresponding to the primitive type.
 func (p StructPrinter) Print() string {
 	structPirntHeader := fmt.Sprintf("%s%s%s%s<\n", printIndent(p.depth), p.colName, p.sep, p.typeName)
-	structPirntFooter := fmt.Sprintf("%s>\n", printIndent(p.depth))
+	structPirntFooter := fmt.Sprintf("\n%s>", printIndent(p.depth))
 
 	var mPrints []string
 	for _, v := range p.member {
 		mPrints = append(mPrints, v.Print())
 	}
-	mPrint := strings.Join(mPrints, "")
+	mPrint := strings.Join(mPrints, "\n")
 
 	return structPirntHeader + mPrint + structPirntFooter
 }
