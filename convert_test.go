@@ -7,19 +7,25 @@ func TestLoadJSON(t *testing.T) {
 		input  string
 		expect string
 	}{
-		{input: `{"null_type": null}`, expect: "  null_type binary,"},
-		{input: `{"true_type": true}`, expect: "  true_type bool,"},
-		{input: `{"false_type": false}`, expect: "  false_type bool,"},
-		{input: `{"int_type": 1}`, expect: "  int_type int,"},
-		{input: `{"float_type": 1.1}`, expect: "  float_type float,"},
-		{input: `{"string_type": "string"}`, expect: "  string_type string,"},
+		{input: `{"null_type": null}`, expect: "  null_type binary"},
+		{input: `{"true_type": true}`, expect: "  true_type bool"},
+		{input: `{"false_type": false}`, expect: "  false_type bool"},
+		{input: `{"int_type": 1}`, expect: "  int_type int"},
+		{input: `{"float_type": 1.1}`, expect: "  float_type float"},
+		{input: `{"string_type": "string"}`, expect: "  string_type string"},
 		{
 			input:  `{"struct_type": {"child_a": 1,"child_b": "string"}}`,
-			expect: "  struct_type struct<\n    child_a:int,\n    child_b:string,\n  >",
+			expect: "  struct_type struct<\n    child_a:int,\n    child_b:string\n  >",
 		},
 		{
 			input:  `{"nest_struct": {"child_a": 1,"child_nest_1": {"child_nest_2":{"child_b": 1,"child_c": "string",}}}}`,
-			expect: "  nest_struct struct<\n    child_a:int,\n    child_nest_1:struct<\n      child_nest_2:struct<\n        child_b:int,\n        child_c:string,\n      >\n    >\n  >",
+			expect: "  nest_struct struct<\n    child_a:int,\n    child_nest_1:struct<\n      child_nest_2:struct<\n        child_b:int,\n        child_c:string\n      >\n    >\n  >",
+		},
+		{input: `{"array_type": [10,21,20]}`, expect: "  array_type array<int>"},
+		{input: `{"mixed_array_type": ["hoge",21,20]}`, expect: "  mixed_array_type array<binary>"},
+		{
+			input:  `{"struct_type": {"array_type": [10,21,20],"child_b": "string"}}`,
+			expect: "  struct_type struct<\n    array_type:array<int>,\n    child_b:string\n  >",
 		},
 	}
 
