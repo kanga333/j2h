@@ -33,3 +33,15 @@ func TestPrimitiveArrayPrinter(t *testing.T) {
 		t.Errorf("result of print should be \n%q\nbut\n%q", expecthql, arrayhql)
 	}
 }
+
+func TestStructArrayPrinter(t *testing.T) {
+	childPrinterA := NewPrimitivePrinter(3, "childa", "int", ":")
+	childPrinterB := NewPrimitivePrinter(3, "childb", "string", ":")
+	plist := []Printer{childPrinterA, childPrinterB}
+	arrayPrinter := NewStructArrayPrinter(1, "structarrayprinter", " ", plist)
+	arrayhql := arrayPrinter.Print()
+	expecthql := "  structarrayprinter array<\n    struct<\n      childa:int,\n      childb:string\n    >\n  >"
+	if arrayhql != expecthql {
+		t.Errorf("result of print should be \n%q\nbut\n%q", expecthql, arrayhql)
+	}
+}

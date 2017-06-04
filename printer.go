@@ -29,11 +29,14 @@ type StructPrinter struct {
 
 // ArrayPrinter is a printer structure corresponding to the array type of hive.
 type ArrayPrinter struct {
-	depth     int
-	colName   string
-	typeName  string
-	delimiter string
-	member    Printer
+	headerDepth   int
+	fotterDepth   int
+	colName       string
+	typeName      string
+	delimiter     string
+	headerNewline string
+	fotterNewline string
+	member        Printer
 }
 
 // NewPrimitivePrinter creates and returns a new PrimitivePrinter.
@@ -62,11 +65,30 @@ func NewPrimitiveArrayPrinter(depth int, colName, delimiter, elementType string)
 	p := NewPrimitivePrinter(0, "", elementType, "")
 
 	return &ArrayPrinter{
-		depth:     depth,
-		colName:   colName,
-		typeName:  "array",
-		delimiter: delimiter,
-		member:    p,
+		headerDepth:   depth,
+		fotterDepth:   0,
+		colName:       colName,
+		typeName:      "array",
+		delimiter:     delimiter,
+		headerNewline: "",
+		fotterNewline: "",
+		member:        p,
+	}
+}
+
+// NewStructArrayPrinter creates and returns a new ArrayPrinter whose element is a struct type.
+func NewStructArrayPrinter(depth int, colName, delimiter string, plist []Printer) *ArrayPrinter {
+	p := NewStructPrinter(depth+1, "", "", plist)
+
+	return &ArrayPrinter{
+		headerDepth:   depth,
+		fotterDepth:   depth,
+		colName:       colName,
+		typeName:      "array",
+		delimiter:     delimiter,
+		headerNewline: "\n",
+		fotterNewline: "\n",
+		member:        p,
 	}
 }
 
@@ -91,8 +113,8 @@ func (p StructPrinter) Print() string {
 
 // Print prints one line of hive ddl corresponding to the array type.
 func (p ArrayPrinter) Print() string {
-	structPirntHeader := fmt.Sprintf("%s%s%s%s<", printIndent(p.depth), p.colName, p.delimiter, p.typeName)
-	structPirntFooter := fmt.Sprint(">")
+	structPirntHeader := fmt.Sprintf("%s%s%s%s<%s", printIndent(p.headerDepth), p.colName, p.delimiter, p.typeName, p.headerNewline)
+	structPirntFooter := fmt.Sprintf("%s%s>", p.fotterNewline, printIndent(p.fotterDepth))
 
 	return structPirntHeader + p.member.Print() + structPirntFooter
 }
