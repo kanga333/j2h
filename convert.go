@@ -12,40 +12,48 @@ func LoadJSON(json string) []Printer {
 }
 
 func convertJSON(depth int, json string, inStruct bool) []Printer {
-	var plist []Printer
-	delimiter := determineDelimiter(inStruct)
 
+	/*As gjson.ForEach can not propagate errors, put the child elements of json in the array.
+	  Use two arrays of key and value instead of map because we want to guarantee the order of input.*/
+	jsonKeys := []string{}
+	jsonVals := []gjson.Result{}
 	result := gjson.Parse(json)
 	result.ForEach(func(k, v gjson.Result) bool {
-		if v.Type.String() == "JSON" {
-			if strings.HasPrefix(v.Raw, "{") {
-				m := convertJSON(depth+1, v.Raw, true)
-				p := NewStructPrinter(depth, k.String(), delimiter, m)
-				plist = append(plist, p)
-			} else if strings.HasPrefix(v.Raw, "[") {
-				children := v.Array()
-				var element string
-				for _, v := range children {
-					if element == "" {
-						element = determineTyepOfHive(v.Raw, v.Type.String())
-					} else if element != determineTyepOfHive(v.Raw, v.Type.String()) {
-						element = "binary"
-						break
-					}
-				}
-				p := NewPrimitiveArrayPrinter(depth, k.String(), delimiter, element)
-				plist = append(plist, p)
-			}
-
-		} else {
-			t := determineTyepOfHive(v.Raw, v.Type.String())
-			p := NewPrimitivePrinter(depth, k.String(), t, delimiter)
-			plist = append(plist, p)
-		}
+		jsonKeys = append(jsonKeys, k.String())
+		jsonVals = append(jsonVals, v)
 		return true
-
 	})
-	return plist
+
+	var printerList []Printer
+	delimiter := determineDelimiter(inStruct)
+
+	for i, jsonVal := range jsonVals {
+		var printer Printer
+		hiveType := determineTyepOfHive(jsonVal.Raw, jsonVal.Type.String())
+		switch hiveType {
+		case "array":
+			children := jsonVal.Array()
+			var element string
+			for _, v := range children {
+				if element == "" {
+					element = determineTyepOfHive(v.Raw, v.Type.String())
+				} else if element != determineTyepOfHive(v.Raw, v.Type.String()) {
+					element = "binary"
+					break
+				}
+			}
+			printer = NewPrimitiveArrayPrinter(depth, jsonKeys[i], delimiter, element)
+		case "struct":
+			m := convertJSON(depth+1, jsonVal.Raw, true)
+			printer = NewStructPrinter(depth, jsonKeys[i], delimiter, m)
+		default:
+			printer = NewPrimitivePrinter(depth, jsonKeys[i], hiveType, delimiter)
+		}
+		printerList = append(printerList, printer)
+
+	}
+
+	return printerList
 }
 
 func determineTyepOfHive(jsonRaw, jsonType string) string {
@@ -58,6 +66,8 @@ func determineTyepOfHive(jsonRaw, jsonType string) string {
 		return "string"
 	case "Number":
 		return determineNumberTyepOfHive(jsonRaw)
+	case "JSON":
+		return determineComposite(jsonRaw)
 	default:
 		return "binary"
 	}
@@ -68,6 +78,15 @@ func determineNumberTyepOfHive(numStr string) string {
 		return "float"
 	}
 	return "int"
+}
+
+func determineComposite(s string) string {
+	if strings.HasPrefix(s, "{") {
+		return "struct"
+	} else if strings.HasPrefix(s, "[") {
+		return "array"
+	}
+	return ""
 }
 
 func determineDelimiter(inStruct bool) string {
