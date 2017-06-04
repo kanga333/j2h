@@ -75,7 +75,7 @@ func determineArrayType(children []gjson.Result) string {
 func determineTyepOfHive(jsonRaw, jsonType string) string {
 	switch jsonType {
 	case "True", "False":
-		return "bool"
+		return "boolean"
 	case "Null":
 		return "binary"
 	case "String":
@@ -91,7 +91,7 @@ func determineTyepOfHive(jsonRaw, jsonType string) string {
 
 func determineNumberTyepOfHive(numStr string) string {
 	if strings.Contains(numStr, ".") {
-		return "float"
+		return "double"
 	}
 	return "int"
 }

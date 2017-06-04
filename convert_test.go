@@ -8,10 +8,10 @@ func TestLoadJSON(t *testing.T) {
 		expect string
 	}{
 		{input: `{"null_type": null}`, expect: "  null_type binary"},
-		{input: `{"true_type": true}`, expect: "  true_type bool"},
-		{input: `{"false_type": false}`, expect: "  false_type bool"},
+		{input: `{"true_type": true}`, expect: "  true_type boolean"},
+		{input: `{"false_type": false}`, expect: "  false_type boolean"},
 		{input: `{"int_type": 1}`, expect: "  int_type int"},
-		{input: `{"float_type": 1.1}`, expect: "  float_type float"},
+		{input: `{"double_type": 1.1}`, expect: "  double_type double"},
 		{input: `{"string_type": "string"}`, expect: "  string_type string"},
 		{
 			input:  `{"struct_type": {"child_a": 1,"child_b": "string"}}`,
