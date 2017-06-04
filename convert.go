@@ -32,14 +32,7 @@ func convertJSON(depth int, json string, inStruct bool) []Printer {
 		hiveType := determineTyepOfHive(jsonVal.Raw, jsonVal.Type.String())
 		switch hiveType {
 		case "array":
-			arrayType := determineArrayType(jsonVal.Array())
-			switch arrayType {
-			case "struct":
-				m := convertJSON(depth+2, jsonVal.Get("1").Raw, true)
-				printer = NewStructArrayPrinter(depth, jsonKeys[i], delimiter, m)
-			default:
-				printer = NewPrimitiveArrayPrinter(depth, jsonKeys[i], delimiter, arrayType)
-			}
+			printer = newArrayPrinter(depth, jsonKeys[i], delimiter, jsonVal)
 		case "struct":
 			m := convertJSON(depth+1, jsonVal.Raw, true)
 			printer = NewStructPrinter(depth, jsonKeys[i], delimiter, m)
@@ -114,5 +107,20 @@ func compareArrayTypes(oldType, newType string) string {
 		return oldType
 	}
 	return "binary"
+
+}
+
+func newArrayPrinter(depth int, colName, delimiter string, jsonVal gjson.Result) Printer {
+	arrayType := determineArrayType(jsonVal.Array())
+	switch arrayType {
+	case "array":
+		p := newArrayPrinter(depth+1, "", "", jsonVal.Get("0"))
+		return NewMultipleArrayPrinter(depth, colName, delimiter, p)
+	case "struct":
+		m := convertJSON(depth+2, jsonVal.Get("0").Raw, true)
+		return NewStructArrayPrinter(depth, colName, delimiter, m)
+	default:
+		return NewPrimitiveArrayPrinter(depth, colName, delimiter, arrayType)
+	}
 
 }

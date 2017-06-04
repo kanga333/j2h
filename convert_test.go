@@ -31,6 +31,18 @@ func TestLoadJSON(t *testing.T) {
 			input:  `{"array_type": [{"struct_type": {"child_a": 1,"child_b": "string"}},{"struct_type": {"child_a": 1,"child_b": "string"}}]}`,
 			expect: "  array_type array<\n    struct<\n      struct_type:struct<\n        child_a:int,\n        child_b:string\n      >\n    >\n  >",
 		},
+		{
+			input:  `{"array_type": [{"child_a": 1,"child_b": "string"},{"child_a": 1,"child_b": "string"}]}`,
+			expect: "  array_type array<\n    struct<\n      child_a:int,\n      child_b:string\n    >\n  >",
+		},
+		{
+			input:  `{"multi_array_type": [[10,21,20],[10,21,22]]}`,
+			expect: "  multi_array_type array<\n    array<int>\n  >",
+		},
+		{
+			input:  `{"multi_array_type": [[{"struct_type": {"child_a": 1,"child_array": ["a","b"]}},{"struct_type": {"child_a": 1,"child_array": ["a","b"]}}],[{"struct_type": {"child_a": 1,"child_array": ["a","b"]}}]]}`,
+			expect: "  multi_array_type array<\n    array<\n      struct<\n        struct_type:struct<\n          child_a:int,\n          child_array:array<string>\n        >\n      >\n    >\n  >",
+		},
 	}
 
 	for _, test := range tests {

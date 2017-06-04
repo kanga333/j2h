@@ -45,3 +45,14 @@ func TestStructArrayPrinter(t *testing.T) {
 		t.Errorf("result of print should be \n%q\nbut\n%q", expecthql, arrayhql)
 	}
 }
+
+func TestMultipleArrayPrinter(t *testing.T) {
+	descendant := NewPrimitiveArrayPrinter(3, "", "", "int")
+	child := NewMultipleArrayPrinter(2, "", "", descendant)
+	arrayPrinter := NewMultipleArrayPrinter(1, "multiarrayprinter", " ", child)
+	arrayhql := arrayPrinter.Print()
+	expecthql := "  multiarrayprinter array<\n    array<\n      array<int>\n    >\n  >"
+	if arrayhql != expecthql {
+		t.Errorf("result of print should be \n%q\nbut\n%q", expecthql, arrayhql)
+	}
+}

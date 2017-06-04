@@ -92,6 +92,20 @@ func NewStructArrayPrinter(depth int, colName, delimiter string, plist []Printer
 	}
 }
 
+// NewMultipleArrayPrinter creates and returns a new ArrayPrinter whose element is a array type.
+func NewMultipleArrayPrinter(depth int, colName, delimiter string, p Printer) *ArrayPrinter {
+	return &ArrayPrinter{
+		headerDepth:   depth,
+		fotterDepth:   depth,
+		colName:       colName,
+		typeName:      "array",
+		delimiter:     delimiter,
+		headerNewline: "\n",
+		fotterNewline: "\n",
+		member:        p,
+	}
+}
+
 // Print prints one line of hive ddl corresponding to the primitive type.
 func (p PrimitivePrinter) Print() string {
 	return fmt.Sprintf("%s%s%s%s", printIndent(p.depth), p.colName, p.delimiter, p.typeName)
