@@ -31,6 +31,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	ddl := ConvertJSONTOHQL(string(b))
+	ddl, err := ConvertJSONTOHQL(string(b))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to convert json to hql: %v\n", err)
+		os.Exit(1)
+	}
 	fmt.Fprintln(os.Stdout, ddl)
 }

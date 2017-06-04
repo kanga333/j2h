@@ -18,7 +18,7 @@ func TestLoadJSON(t *testing.T) {
 			expect: "  struct_type struct<\n    child_a:int,\n    child_b:string\n  >",
 		},
 		{
-			input:  `{"nest_struct": {"child_a": 1,"child_nest_1": {"child_nest_2":{"child_b": 1,"child_c": "string",}}}}`,
+			input:  `{"nest_struct": {"child_a": 1,"child_nest_1": {"child_nest_2":{"child_b": 1,"child_c": "string"}}}}`,
 			expect: "  nest_struct struct<\n    child_a:int,\n    child_nest_1:struct<\n      child_nest_2:struct<\n        child_b:int,\n        child_c:string\n      >\n    >\n  >",
 		},
 		{input: `{"array_type": [10,21,20]}`, expect: "  array_type array<int>"},
@@ -46,9 +46,9 @@ func TestLoadJSON(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		plist := LoadJSON(test.input)
-		if plist == nil {
-			t.Fatalf("should not be nil for %s", test.input)
+		plist, err := LoadJSON(test.input)
+		if err != nil {
+			t.Fatalf("should not raise error %v, %v", err, test.input)
 		}
 		for _, p := range plist {
 			result := p.Print()
