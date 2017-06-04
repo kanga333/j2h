@@ -7,16 +7,28 @@ import (
 	"os"
 )
 
+const name string = "j2h"
+
+var version string
+
+func init() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "%s is a tool to convert json to hive ddl\n\n", name)
+		fmt.Fprintf(os.Stderr, "Usage: %s <option>\n", name)
+		flag.PrintDefaults()
+	}
+}
+
 func main() {
 	var (
 		showVersion = flag.Bool("version", false, "Print version information.")
-		path        = flag.String("json-path", "", "Path of json file.")
+		path        = flag.String("path", "", "Path of json file.")
 	)
 
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Fprintln(os.Stdout, version)
+		fmt.Fprintln(os.Stdout, "Version: ", version)
 		os.Exit(0)
 	}
 
