@@ -6,6 +6,16 @@ import (
 	"github.com/tidwall/gjson"
 )
 
+// ConvertJSONTOHQL reads json as a string and returns a hive ddl string.
+func ConvertJSONTOHQL(json string) string {
+	plists := LoadJSON(json)
+	var ddl []string
+	for _, v := range plists {
+		ddl = append(ddl, v.Print())
+	}
+	return PrintHeader() + "\n" + strings.Join(ddl, ",\n") + "\n" + PrintFooter()
+}
+
 // LoadJSON reads json as a string and returns a list of printer.
 func LoadJSON(json string) []Printer {
 	return convertJSON(1, json, false)

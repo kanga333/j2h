@@ -106,6 +106,16 @@ func NewMultipleArrayPrinter(depth int, colName, delimiter string, p Printer) *A
 	}
 }
 
+// PrintHeader prints header of hive ddl.
+func PrintHeader() string {
+	return fmt.Sprint("create external table json_data(")
+}
+
+// PrintFooter  prints footer of hive ddl.
+func PrintFooter() string {
+	return fmt.Sprint(")")
+}
+
 // Print prints one line of hive ddl corresponding to the primitive type.
 func (p PrimitivePrinter) Print() string {
 	return fmt.Sprintf("%s%s%s%s", printIndent(p.depth), p.colName, p.delimiter, p.typeName)
