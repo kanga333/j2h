@@ -13,20 +13,14 @@ func LoadJSON(json string) []Printer {
 
 func convertJSON(depth int, json string, inStruct bool) []Printer {
 	var plist []Printer
-
-	var sep string
-	if inStruct {
-		sep = ":"
-	} else {
-		sep = " "
-	}
+	delimiter := determineDelimiter(inStruct)
 
 	result := gjson.Parse(json)
 	result.ForEach(func(k, v gjson.Result) bool {
 		if v.Type.String() == "JSON" {
 			if strings.HasPrefix(v.Raw, "{") {
 				m := convertJSON(depth+1, v.Raw, true)
-				p := NewStructPrinter(depth, k.String(), sep, m)
+				p := NewStructPrinter(depth, k.String(), delimiter, m)
 				plist = append(plist, p)
 			} else if strings.HasPrefix(v.Raw, "[") {
 				children := v.Array()
@@ -39,13 +33,13 @@ func convertJSON(depth int, json string, inStruct bool) []Printer {
 						break
 					}
 				}
-				p := NewPrimitiveArrayPrinter(depth, k.String(), sep, element)
+				p := NewPrimitiveArrayPrinter(depth, k.String(), delimiter, element)
 				plist = append(plist, p)
 			}
 
 		} else {
 			t := determineTyepOfHive(v.Raw, v.Type.String())
-			p := NewPrimitivePrinter(depth, k.String(), t, sep)
+			p := NewPrimitivePrinter(depth, k.String(), t, delimiter)
 			plist = append(plist, p)
 		}
 		return true
@@ -74,4 +68,11 @@ func determineNumberTyepOfHive(numStr string) string {
 		return "float"
 	}
 	return "int"
+}
+
+func determineDelimiter(inStruct bool) string {
+	if inStruct {
+		return ":"
+	}
+	return " "
 }
