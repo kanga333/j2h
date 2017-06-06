@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"strings"
 
 	"fmt"
@@ -24,7 +23,7 @@ func ConvertJSONTOHQL(json string) (string, error) {
 
 // LoadJSON reads json as a string and returns a list of printer.
 func LoadJSON(json string) ([]Printer, error) {
-	if !isJSON(json) {
+	if !gjson.Valid(json) {
 		return nil, fmt.Errorf("input value is not json format")
 	}
 	return convertJSON(1, json, false)
@@ -163,9 +162,4 @@ func newArrayPrinter(depth int, colName, delimiter string, jsonVal gjson.Result)
 		return NewPrimitiveArrayPrinter(depth, colName, delimiter, arrayType), nil
 	}
 
-}
-
-func isJSON(s string) bool {
-	var j map[string]interface{}
-	return json.Unmarshal([]byte(s), &j) == nil
 }
